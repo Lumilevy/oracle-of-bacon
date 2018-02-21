@@ -26,13 +26,14 @@ public class CompletionLoader {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         RestHighLevelClient client = ElasticSearchRepository.createClient();
-        //args = new String[1];
-        //args[0] = "../../neo4j-community-3.3.3/import/actors.csv";
+        args = new String[1];
+        args[0] = "../../neo4j-community-3.3.3/import/actors.csv";
         if (args.length != 1) {
             System.err.println("Expecting 1 arguments, actual : " + args.length);
             System.err.println("Usage : completion-loader <actors file path>");
             System.exit(-1);
         }
+        String inputFilePath = args[0];
 
         BulkProcessor bulkProcessor = BulkProcessor.builder(client::bulkAsync, new BulkProcessor.Listener() {
             @Override
@@ -49,11 +50,8 @@ public class CompletionLoader {
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
                 System.out.println("After bulk : FAILURE");
             }
-        }).setBulkActions(10000).setBulkSize(new ByteSizeValue(5, ByteSizeUnit.MB))
-                .setFlushInterval(TimeValue.timeValueSeconds(5)).setConcurrentRequests(1)
-                .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3)).build();
+        }).setBulkActions(-1).setBulkSize(new ByteSizeValue(8, ByteSizeUnit.MB)).build();
 
-        String inputFilePath = args[0];
         try (BufferedReader bufferedReader = Files.newBufferedReader(Paths.get(inputFilePath))) {
             bufferedReader.lines().forEach(line -> {
                 bulkProcessor.add(new IndexRequest(line));
