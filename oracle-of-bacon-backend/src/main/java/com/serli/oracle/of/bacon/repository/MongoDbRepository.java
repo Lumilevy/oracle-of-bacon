@@ -1,10 +1,15 @@
 package com.serli.oracle.of.bacon.repository;
 
+import java.util.Optional;
+
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
-import org.bson.Document;
+import com.mongodb.client.model.Filters;
 
-import java.util.Optional;
+import org.bson.BsonDocument;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
 public class MongoDbRepository {
     private final MongoCollection<Document> actorCollection;
@@ -14,7 +19,6 @@ public class MongoDbRepository {
     }
 
     public Optional<Document> getActorByName(String name) {
-        // TODO implement actor fetch
-        return null;
+        return Optional.ofNullable(this.actorCollection.find(Filters.eq("name", name)).first());
     }
 }
